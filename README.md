@@ -50,6 +50,9 @@ The project is structured as follows:
 ├── LICENSE.md
 └── README.md
 ```
+
+## Setup Instructions
+
 ### 1. **backend/**: Contains the Node.js and Express backend code.
 
    ```bash 
