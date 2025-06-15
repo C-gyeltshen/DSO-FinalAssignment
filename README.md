@@ -39,4 +39,53 @@ The goal is to **automate code synchronization, deployment, and security checks*
    ```
     ![3](./image/3.png)
 
+## Project Structure
+The project is structured as follows:
+
+```
+├── backend/
+├── docker/
+├── frontend/
+├── image/
+├── LICENSE.md
+└── README.md
+```
+### 1. **backend/**: Contains the Node.js and Express backend code.
+
+   ```bash 
+   cd backend
+   npm install
+   ```
+   * Create a `postgres database` in `render.com`.
+
+      ![4](./image/4.png)
+
+   * Create a `.env` file in the `backend` directory with the following content:
+
+      ```bash
+      DATABASE_HOST="your database host"
+      DATABASE_PORT="port your db is rinning on"
+      DATABASE_USER="your database username"
+      DATABASE_PASSWORD="database password"
+      DATABASE_NAME="your database name"
+      ```
+
+   * Run the backend server:
+
+      ```bash
+      npm start
+      ```
+      ![5](./image/5.png)
+
+
+### 2. **frontend/**: Contains the React frontend code.
+
+   ```bash
+   cd frontend
+   npm install
+   ```
+   ```bash
+   npm start
+   ```
+   ![6](./image/6.png)
 

@@ -1,4 +1,3 @@
-
 const databaseConfig = {
   client: 'pg',
   version: '5.7',
@@ -10,13 +9,12 @@ const databaseConfig = {
     database: process.env.DATABASE_NAME,
   }
 }
-
 const config = {
   database: {
     ...databaseConfig,
     pool: {
       min: 2,
-      max: 10
+      max: 20
     },
     migrations: {
       tableName: 'knex_migrations'
