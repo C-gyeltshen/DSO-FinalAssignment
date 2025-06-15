@@ -51,7 +51,7 @@ The project is structured as follows:
 └── README.md
 ```
 
-## Setup Instructions
+## BMI Setup Instructions
 
 ### 1. **backend/**: Contains the Node.js and Express backend code.
 
