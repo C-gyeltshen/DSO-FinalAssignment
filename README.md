@@ -116,9 +116,9 @@ The project is structured as follows:
 
 ### 3. Add new endpoint in `backend/routes/bmi.js`:
 
-   * Create dummy data for BMI records in the `backend/routes/bmi.js` file:
+   * Insert dummy data in `bmi_records` table using the following SQL command:
 
-      ```javascript
+      ```sql
       INSERT INTO bmi_records (height, weight, age, bmi)
       VALUES 
       (1.60, 50, 22, 19.53),
