@@ -7,7 +7,7 @@
     "build": "tsc",
     "develop": "nodemon",
     "serve": "node build/bin/www.js",
-    "migrate:latest": "knex migrate:latest --env database",
+   "migrate:latest": "knex migrate:latest",
     "eslint-fix": "eslint --fix src/**/*.ts*",
     "eslint-report": "eslint src/**/* > eslint-report.txt"
   },

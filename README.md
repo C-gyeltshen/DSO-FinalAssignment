@@ -89,3 +89,92 @@ The project is structured as follows:
    ```
    ![6](./image/6.png)
 
+   * Edit the `src/app.js` file and add code for the BMI calculator:
+
+      ![10](./image/10.png)
+
+### 3. **Database Setup**
+
+   * Create `bmi_recordes` table in the database using the following SQL command:
+
+      ```sql
+      CREATE TABLE bmi_records (
+         id SERIAL PRIMARY KEY,
+         height NUMERIC(5,2) NOT NULL,
+         weight NUMERIC(5,2) NOT NULL,
+         age INTEGER NOT NULL,
+         bmi NUMERIC(5,2) NOT NULL,
+         created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      ```
+      ![7](./image/7.png)
+      ![8](./image/8.png)
+      ![9](./image/9.png)
+
+### 3. Add new endpoint in `backend/routes/bmi.js`:
+
+   * Create dummy data for BMI records in the `backend/routes/bmi.js` file:
+
+      ```javascript
+      INSERT INTO bmi_records (height, weight, age, bmi)
+      VALUES 
+      (1.60, 50, 22, 19.53),
+      (1.75, 70, 25, 22.86),
+      (1.68, 80, 30, 28.32),
+      (1.82, 90, 35, 27.17),
+      (1.55, 45, 20, 18.73),
+      (1.90, 100, 40, 27.7),
+      (1.72, 65, 28, 21.97),
+      (1.78, 85, 32, 26.8),
+      (1.60, 60, 26, 23.44),
+      (1.70, 95, 38, 32.87);
+      ```
+      ![11](./image/11.png)
+
+   * Check the database to ensure the data is inserted correctly:
+
+      ![12](./image/12.png)
+
+   * Create `endpoint` to get all BMI records:
+
+      ```bash
+         touch backend/routes/bmi.js
+      ```
+
+      ```javascript
+         import { Router, Request, Response } from 'express'
+         import { errorHandler } from '../utils'
+         import knex from 'knex'
+         import { databaseConfig } from '../config'
+
+         const router = Router()
+         const db = knex(databaseConfig)
+
+         // GET /api/user/bmi - fetch all BMI records
+         router.get('/user/bmi', errorHandler(async (req: Request, res: Response) => {
+         const records = await db('bmi_records').select('*').orderBy(' created_at ', 'desc')
+         res.json(records)
+         }))
+
+         export default router
+      ```
+
+   * Create new `endpoint` for add BMI records under `backend/routes/bmi.js`:
+
+      ```javascript
+         router.post('/create/bmi', errorHandler(async (req: Request, res: Response) => {
+         const { id, height, weight,age, bmi } = req.body;
+
+         if (!id || !height || !weight || !age || !bmi) {
+            return res.status(400).json({ message: 'Missing required fields' });
+         }
+
+         const [record] = await db('bmi_records')
+            .insert({ id, height, weight, bmi })
+            .returning('*');
+
+         res.status(201).json(record);
+         }));
+      ```
+
+
