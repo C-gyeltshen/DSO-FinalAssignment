@@ -9,7 +9,8 @@ import { PRODUCTION, JWT_SECRET, REFRESH_JWT_SECRET } from './constants'
 import routes from './routes'
 import { databaseConfig } from './config'
 import HTTP_CODE from './errors/httpCodes'
-
+import dotenv from 'dotenv'
+dotenv.config()
 
 
 // Environment execution info

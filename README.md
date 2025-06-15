@@ -180,4 +180,34 @@ The project is structured as follows:
          }));
       ```
 
+## Writing Tests
 
+* Install the required dev dependencies for testing:
+
+   ```bash
+   npm install --save-dev jest supertest @types/jest @types/supertest
+   ```
+
+* Create test file `backend/tests/bmi.test.js`:
+
+   ```javascript
+   import request from 'supertest';
+   import app from '../app'; // Adjust the path to your Express app
+
+   describe('BMI API', () => {
+      it('should fetch all BMI records', async () => {
+         const response = await request(app).get('/api/user/bmi');
+         expect(response.statusCode).toBe(200);
+         expect(Array.isArray(response.body)).toBe(true);
+      });
+
+      it('should create a new BMI record', async () => {
+         const newRecord = { height: 1.75, weight: 70, age: 25, bmi: 22.86 };
+         const response = await request(app)
+            .post('/api/user/create/bmi')
+            .send(newRecord);
+         expect(response.statusCode).toBe(201);
+         expect(response.body).toHaveProperty('id');
+      });
+   });
+   ```
