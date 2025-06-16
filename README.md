@@ -162,6 +162,10 @@ The project is structured as follows:
          export default router
       ```
 
+   * `Test` the endpoint using `Postman`:
+   
+      ![13](./image/13.png)
+
    * Create new `endpoint` for add BMI records under `backend/routes/bmi.js`:
 
       ```javascript
@@ -180,6 +184,10 @@ The project is structured as follows:
          }));
       ```
 
+   * Test the new endpoint using `Postman`:
+
+      ![14](./image/14.png)
+
 ## Writing Tests
 
 * Install the required dev dependencies for testing:
@@ -191,23 +199,170 @@ The project is structured as follows:
 * Create test file `backend/tests/bmi.test.js`:
 
    ```javascript
-   import request from 'supertest';
-   import app from '../app'; // Adjust the path to your Express app
+         /// <reference types="jest" />
+      import request from 'supertest'
+      import app from '../src/app'
 
-   describe('BMI API', () => {
-      it('should fetch all BMI records', async () => {
-         const response = await request(app).get('/api/user/bmi');
-         expect(response.statusCode).toBe(200);
-         expect(Array.isArray(response.body)).toBe(true);
-      });
-
+      describe('BMI API', () => {
       it('should create a new BMI record', async () => {
-         const newRecord = { height: 1.75, weight: 70, age: 25, bmi: 22.86 };
-         const response = await request(app)
-            .post('/api/user/create/bmi')
-            .send(newRecord);
-         expect(response.statusCode).toBe(201);
-         expect(response.body).toHaveProperty('id');
-      });
-   });
+         const res = await request(app)
+            .post('/api/create/bmi')
+            .send({
+            id: Math.floor(Math.random() * 1000000),
+            height: 1.75,
+            weight: 70,
+            age: 25,
+            bmi: 22.86
+            })
+            .set('Accept', 'application/json')
+
+         expect(res.status).toBe(201)
+         expect(res.body).toHaveProperty('id')
+         expect(res.body.height).toBe(1.75)
+         expect(res.body.weight).toBe(70)
+         expect(res.body.age).toBe(25)
+         expect(res.body.bmi).toBeCloseTo(22.86)
+      })
+
+      it('should fail with missing fields', async () => {
+         const res = await request(app)
+            .post('/api/create/bmi')
+            .send({
+            height: 1.75,
+            weight: 70,
+            age: 25
+            // bmi missing
+            })
+            .set('Accept', 'application/json')
+
+         expect(res.status).toBe(400)
+         expect(res.body).toHaveProperty('message', 'Missing required fields')
+      })
+      })
    ```
+
+   * Create test file for frontend `frontend/src/App.test.js`:
+
+   ```javascript
+      import React from 'react'
+      import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+      import BMICalculator from './App'
+      import '@testing-library/jest-dom'
+
+      beforeEach(() => {
+      global.fetch = jest.fn((url, options) => {
+         if (url === '/api/user/bmi' && (!options || options.method === 'GET')) {
+            return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve([
+               {
+                  id: '1',
+                  height: 1.75,
+                  weight: 70,
+                  age: 25,
+                  bmi: 22.86,
+                  createdAt: new Date().toISOString()
+               }
+            ])
+            })
+         }
+         if (url === '/api/create/bmi' && options && options.method === 'POST') {
+            return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({})
+            })
+         }
+         if (url && url.startsWith('/api/user/bmi/') && options && options.method === 'DELETE') {
+            return Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
+         }
+         return Promise.resolve({ ok: false, json: () => Promise.resolve({}) })
+      }) as any
+      window.confirm = jest.fn(() => true)
+      })
+
+      afterEach(() => {
+      jest.clearAllMocks()
+      })
+
+      test('renders calculator tab and input fields', () => {
+      render(<BMICalculator />)
+      expect(screen.getByText(/BMI Calculator & Tracker/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Height/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Weight/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Age/i)).toBeInTheDocument()
+      })
+
+      test('calculates BMI and shows result (Calculate Only)', () => {
+      render(<BMICalculator />)
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 1.75/i), { target: { value: '1.75' } })
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 70.5/i), { target: { value: '70' } })
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 25/i), { target: { value: '25' } })
+      fireEvent.click(screen.getByText(/🧮 Calculate Only/i))
+      expect(screen.getByText(/BMI calculated successfully/i)).toBeInTheDocument()
+      expect(screen.getByText(/Your BMI Result/i)).toBeInTheDocument()
+      expect(screen.getByText(/BMI: 22.86/i)).toBeInTheDocument()
+      expect(screen.getByText(/Category: Normal weight/i)).toBeInTheDocument()
+      })
+
+      test('shows error for invalid input', () => {
+      render(<BMICalculator />)
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 1.75/i), { target: { value: '' } })
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 70.5/i), { target: { value: '' } })
+      fireEvent.click(screen.getByText(/🧮 Calculate Only/i))
+      expect(screen.getByText(/Please enter valid height and weight/i)).toBeInTheDocument()
+      })
+
+      test('shows error for out-of-range input', () => {
+      render(<BMICalculator />)
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 1.75/i), { target: { value: '0.2' } })
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 70.5/i), { target: { value: '5' } })
+      fireEvent.click(screen.getByText(/🧮 Calculate Only/i))
+      expect(screen.getByText(/Please enter a realistic height between 0.5m and 3m/i)).toBeInTheDocument()
+      })
+
+      test('saves BMI and clears form', async () => {
+      render(<BMICalculator />)
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 1.75/i), { target: { value: '1.75' } })
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 70.5/i), { target: { value: '70' } })
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 25/i), { target: { value: '25' } })
+      fireEvent.click(screen.getByText(/💾 Calculate & Save BMI/i))
+      await waitFor(() => {
+         expect(screen.getByText(/BMI calculated and saved successfully/i)).toBeInTheDocument()
+      })
+      expect(screen.getByPlaceholderText(/e.g., 1.75/i)).toHaveValue('')
+      expect(screen.getByPlaceholderText(/e.g., 70.5/i)).toHaveValue('')
+      expect(screen.getByPlaceholderText(/e.g., 25/i)).toHaveValue('')
+      })
+
+      test('switches to history tab and loads BMI history', async () => {
+      render(<BMICalculator />)
+      fireEvent.click(screen.getByText(/BMI History/i))
+      await waitFor(() => {
+         expect(screen.getByText(/Your BMI History/i)).toBeInTheDocument()
+         expect(screen.getByText(/Total Records: 1/i)).toBeInTheDocument()
+         expect(screen.getByText(/22.86/)).toBeInTheDocument()
+         expect(screen.getByText(/Normal weight/)).toBeInTheDocument()
+      })
+      })
+
+      test('deletes a BMI record', async () => {
+      render(<BMICalculator />)
+      fireEvent.click(screen.getByText(/BMI History/i))
+      await waitFor(() => expect(screen.getByText(/🗑️ Delete/i)).toBeInTheDocument())
+      fireEvent.click(screen.getByText(/🗑️ Delete/i))
+      await waitFor(() => expect(screen.getByText(/BMI record deleted successfully/i)).toBeInTheDocument())
+      })
+
+      test('clear form button resets fields', () => {
+      render(<BMICalculator />)
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 1.75/i), { target: { value: '1.75' } })
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 70.5/i), { target: { value: '70' } })
+      fireEvent.change(screen.getByPlaceholderText(/e.g., 25/i), { target: { value: '25' } })
+      fireEvent.click(screen.getByText(/🗑️ Clear Form/i))
+      expect(screen.getByPlaceholderText(/e.g., 1.75/i)).toHaveValue('')
+      expect(screen.getByPlaceholderText(/e.g., 70.5/i)).toHaveValue('')
+      expect(screen.getByPlaceholderText(/e.g., 25/i)).toHaveValue('')
+      })
+   ```
+
+## Stage 1: Docker Configuration

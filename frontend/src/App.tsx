@@ -347,8 +347,8 @@ const BMICalculator = () => {
                   transition: 'all 0.2s',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
-                onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#059669')}
-                onMouseOut={(e) => !loading && (e.target.style.backgroundColor = '#10b981')}
+                onMouseOver={(e) => !loading && ((e.target as HTMLButtonElement).style.backgroundColor = '#059669')}
+                onMouseOut={(e) => !loading && ((e.target as HTMLButtonElement).style.backgroundColor = '#10b981')}
               >
                 🧮 Calculate Only
               </button>
@@ -372,8 +372,8 @@ const BMICalculator = () => {
                   transition: 'all 0.2s',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
-                onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#2563eb')}
-                onMouseOut={(e) => !loading && (e.target.style.backgroundColor = '#3b82f6')}
+                onMouseOver={(e) => !loading && ((e.target as HTMLButtonElement).style.backgroundColor = '#2563eb')}
+                onMouseOut={(e) => !loading && ((e.target as HTMLButtonElement).style.backgroundColor = '#3b82f6')}
               >
                 {loading ? '⏳ Saving...' : '💾 Calculate & Save BMI'}
               </button>
@@ -395,8 +395,8 @@ const BMICalculator = () => {
                   transition: 'all 0.2s',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
-                onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#4b5563')}
-                onMouseOut={(e) => !loading && (e.target.style.backgroundColor = '#6b7280')}
+                onMouseOver={(e) => !loading && ((e.target as HTMLButtonElement).style.backgroundColor = '#4b5563')}
+                onMouseOut={(e) => !loading && ((e.target as HTMLButtonElement).style.backgroundColor = '#6b7280')}
               >
                 🗑️ Clear Form
               </button>
@@ -498,8 +498,8 @@ const BMICalculator = () => {
                 transition: 'all 0.2s',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}
-              onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#2563eb')}
-              onMouseOut={(e) => !loading && (e.target.style.backgroundColor = '#3b82f6')}
+              onMouseOver={(e) => !loading && ((e.target as HTMLButtonElement).style.backgroundColor = '#2563eb')}
+              onMouseOut={(e) => !loading && ((e.target as HTMLButtonElement).style.backgroundColor = '#3b82f6')}
             >
               {loading ? '⏳ Loading...' : '🔄 Refresh Data'}
             </button>
@@ -631,8 +631,8 @@ const BMICalculator = () => {
                                 opacity: loading ? 0.6 : 1,
                                 transition: 'all 0.2s'
                               }}
-                              onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#dc2626')}
-                              onMouseOut={(e) => !loading && (e.target.style.backgroundColor = '#ef4444')}
+                            onMouseOver={(e) => !loading && ((e.target as HTMLButtonElement).style.backgroundColor = '#dc2626')}
+                            onMouseOut={(e) => !loading && ((e.target as HTMLButtonElement).style.backgroundColor = '#ef4444')}
                             >
                               🗑️ Delete
                             </button>
@@ -679,6 +679,6 @@ const BMICalculator = () => {
       )}
     </div>
   )
-}
+};
 
-export default BMICalculator
+export default BMICalculator;
