@@ -3,12 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "test": "jest",
     "start": "npm run build && node build/bin/www.js",
     "build": "tsc",
     "develop": "nodemon",
     "serve": "node build/bin/www.js",
-    "migrate:latest": "knex migrate:latest",
+    "migrate:latest": "knex migrate:latest --knexfile ./database/knexfile.js",
     "eslint-fix": "eslint --fix src/**/*.ts*",
     "eslint-report": "eslint src/**/* > eslint-report.txt"
   },

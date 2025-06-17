@@ -240,6 +240,7 @@ The project is structured as follows:
       })
       })
    ```
+   ![15](./image/15.png)
 
    * Create test file for frontend `frontend/src/App.test.js`:
 
@@ -364,5 +365,98 @@ The project is structured as follows:
       expect(screen.getByPlaceholderText(/e.g., 25/i)).toHaveValue('')
       })
    ```
+   ![16](./image/16.png)
 
 ## Stage 1: Docker Configuration
+
+### 1. Docker `volumes` to save the BMI data.
+
+   I am using `Renders free-tier PostgreSQL database` which is fully managed, hosted separately from the `BMI` application container.
+
+   It is connected using `connection strings`, not by mounting database files via Docker volumes.
+
+   Docker volumes are only used when you run your own `database inside a container`, e.g., for local development.
+
+
+### 2. `Writing` and `running tests` using the `docker-compose.yaml` file
+
+
+
+## Stage 2: Jenkins Local Setup for GitHub Push Automation
+
+### **Objective**: 
+* Configure Jenkins to automatically push code to GitHub when a commit message contains @push.
+
+### **Prerequisites**:
+
+* **Jenkins** installed locally or on a server.
+
+   ```bash 
+      brew install jenkins-lts
+   ```
+
+   ```bash 
+      brew services start jenkins-lts
+   ```
+   ![17](./image/17.png)
+
+### **Steps**:
+
+1. Create jekinsfile in the root directory of your project:
+
+   ```bash
+   touch jenkinsfile
+   ```
+2. Add the following content to the `Jenkinsfile`:
+
+   ```groovy
+      pipeline {
+         agent any
+         stages {
+            stage('Build') {
+               steps {
+                  script {
+                     if (env.GIT_COMMIT_MESSAGE.contains('@push')) {
+                        sh 'git push origin main'
+                     } else {
+                        echo 'No @push in commit message, skipping push.'
+                     }
+                  }
+               }
+            }
+         }
+      }
+   ```
+3. Add GitHub credentials to Jenkins:
+
+   * Go to `Jenkins Dashboard` > `Manage Jenkins` > `Manage Credentials`.
+
+      ![19](./image/19.png)
+
+   * Add a new credential with your `GitHub username` and `personal access token.`
+
+      ![18](./image/18.png)
+
+
+4. Create a new Jenkins pipeline `dso-final-pipeline`:
+
+   * Go to `Jenkins Dashboard` > `New Item`.
+
+   * Select `Pipeline`, name it `dso-final-pipeline`, and click `OK`.
+
+   * In the pipeline configuration, set the following:
+
+      - **Definition**: Pipeline script from SCM
+      - **SCM**: Git
+      - **Repository URL**: `https://github.com/C-gyeltshen/DSO-FinalAssignment.git`
+      - **Credentials**: Select the credentials `github-credentials`
+      - **Branch Specifier**: `*/main`
+   * In the `Script Path`, set it to `Jenkinsfile`.
+
+      ![20](./image/20.png)
+
+      ![21](./image/21.png)
+
+      
+
+

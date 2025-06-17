@@ -18,5 +18,5 @@
       "components/*": ["src/components/*"]
     }
   },
-  "include": ["./src", "webpack.config.ts"]
+  "include": ["./src", "webpack.config.js"]
 }

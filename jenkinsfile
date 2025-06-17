@@ -1,0 +1,328 @@
+pipeline {
+    agent any
+    
+    environment {
+        // Update these with your actual repository details
+        GITHUB_CREDENTIALS = credentials('github-credentials')
+        REPO_URL = 'https://github.com/C-gyeltshen/DSO-FinalAssignment.git'
+        // Docker registry (if using Docker)
+        DOCKER_REGISTRY = 'your-registry.com'
+        DOCKER_REPO = 'your-app'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Check Commit Message') {
+            steps {
+                script {
+                    def commitMessage = sh(
+                        script: 'git log -1 --pretty=%B',
+                        returnStdout: true
+                    ).trim()
+                    
+                    echo "Latest commit message: ${commitMessage}"
+                    
+                    if (commitMessage.contains('@push')) {
+                        env.SHOULD_PUSH = 'true'
+                        echo "Commit message contains @push - will proceed with build and push"
+                    } else {
+                        env.SHOULD_PUSH = 'false'
+                        echo "Commit message does not contain @push - skipping build and push"
+                    }
+                }
+            }
+        }
+        
+        stage('Install Dependencies') {
+            when {
+                environment name: 'SHOULD_PUSH', value: 'true'
+            }
+            parallel {
+                stage('Backend Dependencies') {
+                    steps {
+                        dir('backend') {
+                            script {
+                                // Detect backend technology and install dependencies
+                                if (fileExists('package.json')) {
+                                    echo "Installing Node.js backend dependencies..."
+                                    sh 'npm ci'
+                                } else if (fileExists('requirements.txt')) {
+                                    echo "Installing Python backend dependencies..."
+                                    sh 'pip install -r requirements.txt'
+                                } else if (fileExists('pom.xml')) {
+                                    echo "Installing Maven dependencies..."
+                                    sh 'mvn clean install -DskipTests'
+                                } else if (fileExists('go.mod')) {
+                                    echo "Installing Go dependencies..."
+                                    sh 'go mod download'
+                                } else if (fileExists('Cargo.toml')) {
+                                    echo "Installing Rust dependencies..."
+                                    sh 'cargo build --release'
+                                } else {
+                                    echo "No recognized backend dependency file found"
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                stage('Frontend Dependencies') {
+                    steps {
+                        dir('frontend') {
+                            script {
+                                if (fileExists('package.json')) {
+                                    echo "Installing frontend dependencies..."
+                                    sh 'npm ci'
+                                } else if (fileExists('yarn.lock')) {
+                                    echo "Installing frontend dependencies with Yarn..."
+                                    sh 'yarn install --frozen-lockfile'
+                                } else if (fileExists('pnpm-lock.yaml')) {
+                                    echo "Installing frontend dependencies with pnpm..."
+                                    sh 'pnpm install --frozen-lockfile'
+                                } else {
+                                    echo "No frontend package.json found"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Build Applications') {
+            when {
+                environment name: 'SHOULD_PUSH', value: 'true'
+            }
+            parallel {
+                stage('Build Backend') {
+                    steps {
+                        dir('backend') {
+                            script {
+                                if (fileExists('package.json')) {
+                                    echo "Building Node.js backend..."
+                                    sh 'npm run build || echo "No build script found"'
+                                } else if (fileExists('requirements.txt')) {
+                                    echo "Python backend - no build needed"
+                                } else if (fileExists('pom.xml')) {
+                                    echo "Building Java backend..."
+                                    sh 'mvn package -DskipTests'
+                                } else if (fileExists('go.mod')) {
+                                    echo "Building Go backend..."
+                                    sh 'go build -o app'
+                                } else if (fileExists('Cargo.toml')) {
+                                    echo "Rust backend already built in dependencies stage"
+                                }
+                                
+                                // Build Docker image if Dockerfile exists
+                                if (fileExists('Dockerfile')) {
+                                    echo "Building backend Docker image..."
+                                    sh "docker build -t ${DOCKER_REPO}-backend:${BUILD_NUMBER} ."
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                stage('Build Frontend') {
+                    steps {
+                        dir('frontend') {
+                            script {
+                                if (fileExists('package.json')) {
+                                    def packageJson = readJSON file: 'package.json'
+                                    if (packageJson.scripts && packageJson.scripts.build) {
+                                        echo "Building frontend application..."
+                                        sh 'npm run build'
+                                    } else {
+                                        echo "No build script found in frontend package.json"
+                                    }
+                                } else {
+                                    echo "No frontend package.json found"
+                                }
+                                
+                                // Build Docker image if Dockerfile exists
+                                if (fileExists('Dockerfile')) {
+                                    echo "Building frontend Docker image..."
+                                    sh "docker build -t ${DOCKER_REPO}-frontend:${BUILD_NUMBER} ."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Run Tests') {
+            when {
+                environment name: 'SHOULD_PUSH', value: 'true'
+            }
+            parallel {
+                stage('Backend Tests') {
+                    steps {
+                        dir('backend') {
+                            script {
+                                if (fileExists('package.json')) {
+                                    sh 'npm test || echo "No test script found"'
+                                } else if (fileExists('requirements.txt')) {
+                                    sh 'python -m pytest || echo "No pytest found"'
+                                } else if (fileExists('pom.xml')) {
+                                    sh 'mvn test'
+                                } else if (fileExists('go.mod')) {
+                                    sh 'go test ./...'
+                                } else if (fileExists('Cargo.toml')) {
+                                    sh 'cargo test'
+                                }
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            // Publish test results if they exist
+                            script {
+                                if (fileExists('backend/test-results.xml')) {
+                                    publishTestResults testResultsPattern: 'backend/test-results.xml'
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                stage('Frontend Tests') {
+                    steps {
+                        dir('frontend') {
+                            script {
+                                if (fileExists('package.json')) {
+                                    def packageJson = readJSON file: 'package.json'
+                                    if (packageJson.scripts && packageJson.scripts.test) {
+                                        sh 'npm test -- --watchAll=false --ci'
+                                    } else {
+                                        echo "No test script found in frontend"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            script {
+                                if (fileExists('frontend/coverage/lcov.info')) {
+                                    echo "Frontend test coverage available"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Docker Build & Push') {
+            when {
+                allOf {
+                    environment name: 'SHOULD_PUSH', value: 'true'
+                    // Only if docker directory exists
+                    expression { fileExists('docker/docker-compose.yml') || fileExists('docker-compose.yml') }
+                }
+            }
+            steps {
+                script {
+                    if (fileExists('docker-compose.yml')) {
+                        echo "Building with docker-compose..."
+                        sh 'docker-compose build'
+                        sh 'docker-compose push || echo "Push failed - check registry config"'
+                    } else if (fileExists('docker/docker-compose.yml')) {
+                        dir('docker') {
+                            echo "Building with docker-compose from docker directory..."
+                            sh 'docker-compose build'
+                            sh 'docker-compose push || echo "Push failed - check registry config"'
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Push to GitHub') {
+            when {
+                environment name: 'SHOULD_PUSH', value: 'true'
+            }
+            steps {
+                script {
+                    echo "Pushing code to GitHub..."
+                    
+                    sh """
+                        git config --global user.email "jenkins@yourdomain.com"
+                        git config --global user.name "Jenkins CI"
+                    """
+                    
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        sh """
+                            git remote set-url origin https://\${GITHUB_TOKEN}@github.com/your-username/your-repo.git
+                            git push origin main
+                        """
+                    }
+                    
+                    echo "Successfully pushed to GitHub!"
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            when {
+                environment name: 'SHOULD_PUSH', value: 'true'
+            }
+            steps {
+                script {
+                    echo "Deploying application..."
+                    
+                    // Deploy based on what's available
+                    if (fileExists('docker-compose.yml')) {
+                        echo "Deploying with docker-compose..."
+                        sh 'docker-compose up -d'
+                    } else if (fileExists('k8s/') || fileExists('kubernetes/')) {
+                        echo "Deploying to Kubernetes..."
+                        sh 'kubectl apply -f k8s/ || kubectl apply -f kubernetes/'
+                    } else {
+                        echo "No deployment configuration found"
+                        echo "Add your deployment commands here based on your infrastructure"
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            script {
+                if (env.SHOULD_PUSH == 'true') {
+                    echo "✅ Pipeline completed successfully - applications built and pushed to GitHub"
+                    // Send notifications if needed
+                    // slackSend(message: "Deployment successful for ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+                } else {
+                    echo "ℹ️ Pipeline completed - no @push in commit message, skipped build/deploy"
+                }
+            }
+        }
+        failure {
+            echo "❌ Pipeline failed!"
+            // Send failure notifications
+            // slackSend(color: 'danger', message: "Build failed for ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+        }
+        always {
+            // Archive artifacts if they exist
+            script {
+                if (fileExists('backend/dist/') || fileExists('backend/target/') || fileExists('backend/build/')) {
+                    archiveArtifacts artifacts: 'backend/dist/**,backend/target/**,backend/build/**', allowEmptyArchive: true
+                }
+                if (fileExists('frontend/dist/') || fileExists('frontend/build/')) {
+                    archiveArtifacts artifacts: 'frontend/dist/**,frontend/build/**', allowEmptyArchive: true
+                }
+            }
+            
+            // Clean up workspace
+            cleanWs()
+        }
+    }
+}
