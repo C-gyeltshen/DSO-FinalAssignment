@@ -6,8 +6,8 @@ pipeline {
         GITHUB_CREDENTIALS = credentials('github-credentials')
         REPO_URL = 'https://github.com/C-gyeltshen/DSO-FinalAssignment.git'
         // Docker registry (if using Docker)
-        DOCKER_REGISTRY = 'your-registry.com'
-        DOCKER_REPO = 'your-app'
+        // DOCKER_REGISTRY = 'your-registry.com'
+        // DOCKER_REPO = 'your-app'
     }
     
     stages {
