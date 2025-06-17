@@ -66,14 +66,22 @@ pipeline {
             }
         }
 
-        stage('Skip Push') {
-            when {
-                expression {
-                    return !env.GIT_COMMIT_MESSAGE?.contains('@push')
-                }
-            }
+        stage('Push to GitHub if @push') {
             steps {
-                echo 'No @push in commit message, skipping push for both frontend and backend.'
+                dir('frontend') {
+                    sh '''
+                        git config user.name "jenkins"
+                        git config user.email "jenkins@example.com"
+
+                        git add .
+                        if git diff --cached --quiet; then
+                        echo "No changes to commit."
+                        else
+                        git commit -m 'Auto-push frontend changes [ci skip]'
+                        echo "Changes committed."
+                        fi
+                    '''
+                }
             }
         }
     }
