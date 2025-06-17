@@ -449,7 +449,7 @@ The project is structured as follows:
       - **Definition**: Pipeline script from SCM
       - **SCM**: Git
       - **Repository URL**: `https://github.com/C-gyeltshen/DSO-FinalAssignment.git`
-      - **Credentials**: Select the credentials `github-credentials`
+      - **Credentials**: Select the credentials `GITHUB_CREDENTIALS`
       - **Branch Specifier**: `*/main`
    * In the `Script Path`, set it to `Jenkinsfile`.
 
@@ -457,6 +457,23 @@ The project is structured as follows:
 
       ![21](./image/21.png)
 
-      kajnkandkcnsdknkzck
+5. Save the pipeline configuration and build the pipeline.
 
-ksdfvknefvklwneflknwelnelfnvewfnvliwe gkwr
+   * Go to `Jenkins Dashboard` > `dso-final-pipeline` > `Build Now`.
+
+   * Check the console output to see if the pipeline executed successfully.
+
+      ![22](./image/22.png)
+
+6. **Test the Pipeline**:
+
+   * Make a commit with the message `@push` in your local repository:
+
+      ```bash
+      git commit -m "Update README @push"
+      git push origin main
+      ```
+
+   * Check the Jenkins console output to verify that the code was pushed to GitHub.
+
+   ![23](./image/23.png)
