@@ -65,24 +65,5 @@ pipeline {
                 }
             }
         }
-
-        // stage('Push to GitHub if @push') {
-        //     steps {
-        //         dir('frontend') {
-        //             sh '''
-        //                 git config user.name "jenkins"
-        //                 git config user.email "jenkins@example.com"
-
-        //                 git add .
-        //                 if git diff --cached --quiet; then
-        //                 echo "No changes to commit."
-        //                 else
-        //                 git commit -m 'Auto-push frontend changes [ci skip]'
-        //                 echo "Changes committed."
-        //                 fi
-        //             '''
-        //         }
-        //     }
-        // }
     }
 }
