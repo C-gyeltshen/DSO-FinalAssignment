@@ -17,7 +17,6 @@ COPY package-lock.json ./
 
 # Copy config files needed during install/build
 COPY i18next.config.js ./
-COPY .env ./
 
 RUN npm ci
 
