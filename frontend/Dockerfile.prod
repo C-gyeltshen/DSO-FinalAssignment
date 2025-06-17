@@ -9,15 +9,15 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 ENV PATH="/app/node_modules/.bin:$PATH"
 ENV CI=true
 ENV DISABLE_ESLINT_PLUGIN=true
+ENV NODE_ENV=production
 
 # Copy package files
 COPY package.json ./
 COPY package-lock.json ./
 
-# Clear npm cache and install dependencies with specific versions
+# Clear npm cache and install dependencies
 RUN npm cache clean --force && \
-    npm install --legacy-peer-deps react-scripts@4.0.3 webpack@4.44.2 && \
-    npm install --legacy-peer-deps
+    npm ci --legacy-peer-deps
 
 # Copy source files
 COPY . .
