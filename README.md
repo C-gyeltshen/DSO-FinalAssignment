@@ -476,4 +476,42 @@ The project is structured as follows:
 
    * Check the Jenkins console output to verify that the code was pushed to GitHub.
 
-   ![23](./image/23.png)
+      ![23](./image/23.png)
+
+      ![24](./image/24.png)
+
+      ![25](./image/25.png)
+
+## Stage 3: GitHub Actions for Docker Build and Push
+
+### **Objective:**
+* Build and push Docker images for each service (frontend, backend, DB) to Docker Hub.
+
+### **Prerequisites:**
+
+* Docker installed on your local machine.
+* Docker Hub account.
+* GitHub repository for your project.
+### **Steps:**
+
+1. Store `Docker Hub Credentials` in `GitHub Secrets`:
+
+   * Go to your GitHub repository.
+   * Click on `Settings` > `Secrets and variables` > `Actions`.
+
+      ![26](./image/26.png)
+
+   * Click on `New repository secret`.
+   * Add the following secrets:
+      - `DOCKERHUB_USERNAME`: Your Docker Hub username.
+      - `DOCKERHUB_TOKEN`: Your Docker Hub access token.
+
+         ![27](./image/27.png)
+
+
+2. Create `.github/workflows/docker-build.yml` in your repository:
+
+   ```bash
+   touch .github/workflows/docker-build.yml
+   ```
+
