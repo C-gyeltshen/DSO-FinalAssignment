@@ -7,20 +7,23 @@ WORKDIR /app
 # Environment variables with proper syntax
 ENV NODE_OPTIONS="--max_old_space_size=4096"
 ENV PATH="/app/node_modules/.bin:$PATH"
+ENV CI=true
 
-# Copy package files
+# Copy package files first for better caching
 COPY package.json ./
 COPY package-lock.json ./
 
-# Clean install dependencies
-RUN npm cache clean --force
-RUN npm install
+# Install dependencies with legacy peer deps flag
+RUN npm install --legacy-peer-deps
 
-# Copy source files
+# Copy the rest of the application
 COPY . .
 
-# Build the application
-RUN npm run build
+# Create .env file if needed
+RUN echo "REACT_APP_API_URL=http://localhost:5000" > .env
+
+# Build with increased memory limit
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 # Production stage
 FROM nginx:stable-alpine
