@@ -49,21 +49,37 @@ pipeline {
                     // Push frontend changes
                     dir('frontend') {
                         sh '''
+                            git config user.name "jenkins"
+                            git config user.email "jenkins@example.com"
+                            
                             git add .
+                            if git diff --cached --quiet; then
+                            echo "No changes to commit in frontend."
+                            else
                             git commit -m "Auto-push frontend changes [ci skip]"
                             git push origin ${BRANCH}
+                            fi
                         '''
                     }
+
                     // Push backend changes
                     dir('backend') {
                         sh '''
+                            git config user.name "jenkins"
+                            git config user.email "jenkins@example.com"
+                            
                             git add .
+                            if git diff --cached --quiet; then
+                            echo "No changes to commit in backend."
+                            else
                             git commit -m "Auto-push backend changes [ci skip]"
                             git push origin ${BRANCH}
+                            fi
                         '''
                     }
                 }
             }
         }
+
     }
 }
