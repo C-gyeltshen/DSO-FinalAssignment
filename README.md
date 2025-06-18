@@ -609,3 +609,50 @@ The project is structured as follows:
    ![28](./image/28.png)
 
    ![29](./image/29.png)
+   ![30](./image/30.png)
+   ![31](./image/31.png)
+
+## Stage 4: Deploy to Render 
+
+### **Objective**:
+ Deploy services to Render.
+
+### Steps:
+1. **Create a Render Account**: Sign up for a free account on [Render](https://render.com/).
+2. **Create a New Web Service**:
+   * Go to the Render dashboard and click on "New" > "Web Service".
+   * Select Deploy Existing Image.
+   * Choose the Docker image you pushed to Docker Hub.
+      1. Deploying Backend:
+      * Provide the Docker image URL for the frontend service.
+         `gyeltshen23/pern-frontend`
+
+         ![33](./image/33.png)
+
+      * Provide the environment variables for the backend service:
+         - `DATABASE_HOST`: Your Render PostgreSQL database host.
+         - `DATABASE_PORT`: Your Render PostgreSQL database port.
+         - `DATABASE_USER`: Your Render PostgreSQL database username.
+         - `DATABASE_PASSWORD`: Your Render PostgreSQL database password.
+         - `DATABASE_NAME`: Your Render PostgreSQL database name.
+
+         ![34](./image/34.png)
+
+         ![35](./image/35.png)
+
+3. Chnage the endoint URL in the frontend code to point to the Render backend service:
+
+   * Open `frontend/src/App.js` and update the API endpoint:
+
+      ![36](./image/36.png)
+
+      ![37](./image/37.png)
+
+   * Commit and push the changes to your repository:
+
+   ```bash
+   git add .
+   git commit -m "Update API endpoint to Render backend"
+   git push origin main
+   ```
+  
