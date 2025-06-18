@@ -636,9 +636,11 @@ The project is structured as follows:
          - `DATABASE_PASSWORD`: Your Render PostgreSQL database password.
          - `DATABASE_NAME`: Your Render PostgreSQL database name.
 
-         ![34](./image/34.png)
+            ![34](./image/34.png)
 
-         ![35](./image/35.png)
+            ![35](./image/35.png)
+
+            [Backend Endpoint](https://pern-backend.onrender.com/api/user/bmi)
 
 3. Chnage the endoint URL in the frontend code to point to the Render backend service:
 
@@ -648,11 +650,35 @@ The project is structured as follows:
 
       ![37](./image/37.png)
 
-   * Commit and push the changes to your repository:
+   
+
+4. Commit and push the changes to your repository:
 
    ```bash
    git add .
    git commit -m "Update API endpoint to Render backend"
    git push origin main
    ```
-  
+      ![38](./image/38.png)
+
+5. Check the github action to see if the workflow ran successfully and the Docker image was built and pushed to Docker Hub.
+
+      ![39](./image/39.png)
+
+6. Copy the image URL for the frontend service.
+
+   ![40](./image/40.png)
+
+7. **Create a New Web Service for Frontend**:
+   * Go to the Render dashboard and click on "New" > "Web Service".
+   * Select Deploy Existing Image.
+   * Choose the Docker image you pushed to Docker Hub.
+      1. Deploying Frontend:
+      * Provide the Docker image URL for the frontend service.
+         `gyeltshen23/pern-frontend`
+
+         ![41](./image/41.png)
+
+      * Set the environment variable `REACT_APP_API_URL` to the backend service URL.
+
+         ![42](./image/42.png)
