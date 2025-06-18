@@ -5,6 +5,7 @@
   "scripts": {
     "start": "npm run build && node build/bin/www.js",
     "build": "tsc",
+    "test": "jest",
     "develop": "nodemon",
     "serve": "node build/bin/www.js",
     "migrate:latest": "knex migrate:latest --knexfile ./database/knexfile.js",
