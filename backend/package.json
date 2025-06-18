@@ -12,6 +12,7 @@
     "eslint-report": "eslint src/**/* > eslint-report.txt"
   },
   "dependencies": {
+    "dotenv": "^16.0.0",
     "ajv": "^8.8.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
