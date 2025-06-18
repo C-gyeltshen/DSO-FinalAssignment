@@ -1,6 +1,6 @@
-# Production environment
+# Development environment
 # Avoid using alpine here, since we often need python for frontend builds
-FROM node:14 as build
+FROM node:14
 
 # Do not use 'COPY . .' to copy all files. Copying all files will force a build even if no client files have been modified
 
@@ -14,19 +14,19 @@ ENV PATH /app/node_modules/.bin:$PATH
 # Install
 COPY package.json ./
 COPY sync-package-lock ./
-# In production, we will use the package lock generated in the development process. No versions surprises.
-RUN npm clean-install
+# If package-lock.json is not found in previous step, it will be created in the following npm install
+RUN npm install
 
-# Build
+# Development server
 COPY src ./src
 COPY public ./public
 COPY .eslintrc.js ./
 COPY tsconfig.json ./
 COPY webpack.config.ts ./
-RUN npm run build
 
-# Nginx proxy to serve backend ('/api') and frontend ('/') from same port
-FROM nginx:stable-alpine
-COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/build /usr/share/nginx/html
-EXPOSE 80
+# This is responsible of copying node_modules and package-lock.json to host machine
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+
+CMD [ "npm", "start" ]
