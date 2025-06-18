@@ -679,6 +679,8 @@ The project is structured as follows:
 
          ![41](./image/41.png)
 
-      * Set the environment variable `REACT_APP_API_URL` to the backend service URL.
-
          ![42](./image/42.png)
+
+   [Live BMI Calculator URL](https://pern-frontend-1.onrender.com)
+
+   
