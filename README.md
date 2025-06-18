@@ -642,7 +642,7 @@ The project is structured as follows:
 
             [Backend Endpoint](https://pern-backend.onrender.com/api/user/bmi)
 
-3. Chnage the endoint URL in the frontend code to point to the Render backend service:
+3. Change the endoint URL in the frontend code to point to the Render backend service:
 
    * Open `frontend/src/App.js` and update the API endpoint:
 
