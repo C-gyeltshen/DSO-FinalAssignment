@@ -8,7 +8,7 @@ FROM node:14 as build
 WORKDIR /app
 
 # Environment variables
-ENV NODE_OPTIONS=--max_old_space_size=4096
+ENV NODE_OPTIONS="--max_old_space_size=4096" 
 ENV PATH /app/node_modules/.bin:$PATH
 
 # Install
@@ -22,7 +22,7 @@ COPY src ./src
 COPY public ./public
 COPY .eslintrc.js ./
 COPY tsconfig.json ./
-COPY webpack.config.ts ./
+COPY webpack.config.j[s] ./
 RUN npm run build
 
 # Nginx proxy to serve backend ('/api') and frontend ('/') from same port
