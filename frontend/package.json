@@ -4,7 +4,7 @@
   "main": "src/index.tsx",
   "scripts": {
     "test": "jest",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production --env production --progress",
+    "build": "webpack --mode=production --env production --progress",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "start": "NODE_OPTIONS=--openssl-legacy-provider webpack serve --config webpack.config.js --env development",
