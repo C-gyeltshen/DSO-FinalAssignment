@@ -54,6 +54,7 @@
     "webpack-dev-server": "3.11.2"
   },
   "dependencies": {
+    "dotenv": "^10.0.0",
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
     "i18next": "^21.2.0",
